@@ -107,6 +107,26 @@ That is the whole architecture: **the public copy is a signpost, not a bridge.**
 
 ---
 
+## Installed, and offline
+
+It is a PWA, so you can keep it on a home screen. The service worker caches the
+bones — which matters most in the case this page exists for: **your brainstem is
+running and the thing that is unreachable is GitHub, not you.** An installed copy
+still boots and still hands you through to localhost.
+
+The worker refuses to touch the probe. It is a cross-origin request and goes
+straight to the network, uncached — a cache in front of a *liveness* check would
+replay a stale "yes" and keep reporting a brainstem that stopped running an hour
+ago. That one line is the most important thing in `sw.js`.
+
+## When nothing is burrowed
+
+There is no secure AI to offer from a public page — holding credentials here is
+exactly what this design avoids. So degraded mode points at
+[vbrainstem](https://kody-w.github.io/vbrainstem/), which already owns the
+browser-only path and its Copilot sign-in. One owner for browser-held
+credentials, not two.
+
 ## Burrow one
 
 ```bash
@@ -119,12 +139,14 @@ open http://localhost:7071/
 ## Tests
 
 ```bash
-node tests/test_burrow.js     # 29 checks
+node tests/test_burrow.js     # 40 checks — the detector
+node tests/test_sw.js         # 14 checks — the offline shell
 ```
 
 Each guard has been mutation-tested — the bug it prevents was injected and the
 suite was confirmed to fail. Collapsing `blocked` into `unburrowed` fails 5 checks;
-reading a response body fails 11.
+reading a response body fails 11; restoring `redirect:'manual'` fails 1; letting
+the service worker cache the probe fails 3.
 
 ---
 

@@ -8,3 +8,4 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
       - run: node tests/test_burrow.js
+      - run: node tests/test_sw.js

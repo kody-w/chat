@@ -7,6 +7,10 @@
 <meta name="description" content="Public bones for a local-first brainstem. The GOD layer never leaves your device.">
 <meta name="theme-color" content="#0a0c10">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="chat">
 <style>
   :root{
     --bg:#0a0c10; --panel:#12151c; --line:#222836; --ink:#e8ecf4; --dim:#8b94ad;
@@ -105,7 +109,7 @@
     burrowed, this page hands you through to it.
   </p>
 
-  <h2>Burrow one</h2>
+  <h2 id="burrow-h">Burrow one</h2>
   <pre><span class="c"># installs and starts the grail brainstem on this device</span>
 curl -fsSL https://kody-w.github.io/rapp-installer/install.sh | bash
 
@@ -148,6 +152,18 @@ open http://localhost:7071/</pre>
     return n;
   }
 
+  // With no brainstem there is no secure AI to offer from here — a public page
+  // cannot hold credentials without becoming the thing this design exists to
+  // avoid. vbrainstem already owns the browser-only path, including its Copilot
+  // sign-in, so degraded mode points at it rather than growing a second place
+  // that handles auth. One owner for browser-held credentials, not two.
+  function addBrowserPath() {
+    var a = el('a', 'ghost', 'Use vbrainstem in the browser instead  →',
+               'https://kody-w.github.io/vbrainstem/');
+    a.rel = 'noopener';
+    actions.appendChild(a);
+  }
+
   function render(r) {
     actions.innerHTML = '';
 
@@ -167,6 +183,7 @@ open http://localhost:7071/</pre>
       sreason.textContent = 'This browser blocked the loopback probe, so nothing was '
         + 'learned either way. If you have a brainstem running, this door still works.';
       actions.appendChild(el('a', 'door', 'Try your brainstem  →', r.door));
+      addBrowserPath();
       return;
     }
 
@@ -180,17 +197,20 @@ open http://localhost:7071/</pre>
       sreason.textContent = 'The probe timed out instead of being refused, so this '
         + "isn't conclusive. If you have a brainstem running, this door still works.";
       actions.appendChild(el('a', 'door', 'Try your brainstem  →', r.door));
+      addBrowserPath();
       return;
     }
 
     stitle.textContent = 'No brainstem burrowed — running in degraded mode.';
     sreason.textContent = 'This is the default and it is fine. Everything you can see '
       + 'on this page is bones; there is simply no GOD layer on this device yet.';
-    actions.appendChild(el('a', 'ghost', 'How to burrow one  ↓', '#'))
-      .addEventListener('click', function (e) {
-        e.preventDefault();
-        document.querySelectorAll('h2')[1].scrollIntoView({ behavior: 'smooth' });
-      });
+    var how = el('a', 'door', 'Burrow one  ↓', '#');
+    how.addEventListener('click', function (e) {
+      e.preventDefault();
+      document.getElementById('burrow-h').scrollIntoView({ behavior: 'smooth' });
+    });
+    actions.appendChild(how);
+    addBrowserPath();
   }
 
   function run() {
@@ -199,10 +219,12 @@ open http://localhost:7071/</pre>
       dot.className = 'dot unk';
       stitle.textContent = "Can't tell from here.";
       sreason.textContent = 'The detector did not load, so no conclusion was reached.';
+      actions.appendChild(el('a', 'door', 'Try your brainstem  →', 'http://localhost:7071/'));
+      addBrowserPath();
       return;
     }
     window.RappBurrow.detectBurrow(window.fetch.bind(window)).then(render, function () {
-      render({ state: 'blocked', door: 'http://localhost:7071/' });
+      render({ state: 'blocked', door: 'http://localhost:7071/', certain: false });
     });
   }
 
@@ -211,6 +233,12 @@ open http://localhost:7071/</pre>
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden) run();
   });
+
+  if ('serviceWorker' in navigator) {
+    addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    });
+  }
 })();
 </script>
 </body>
