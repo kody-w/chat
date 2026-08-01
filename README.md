@@ -81,6 +81,19 @@ brainstem as absent.
 Ports probed: `7071` (parent), `7081-7083` (booted twins). Parent wins when both
 answer. A positive sighting always outranks a blocked probe.
 
+### Browser support
+
+Loopback is a "potentially trustworthy" origin, so an `https` page reaching
+`http://127.0.0.1` is exempt from mixed-content blocking. **Verified end-to-end in
+Chrome 131**: the live `https://kody-w.github.io/chat/` detects a brainstem on
+`127.0.0.1:7071` and offers the door.
+
+Safari is stricter about loopback, and Chrome's Private Network Access may
+eventually require a preflight the grail does not answer. Neither is verified here,
+and both surface as `blocked` rather than a false `unburrowed` — the page says
+"can't tell from here" and offers the door anyway. That is the whole reason the
+third state exists.
+
 ---
 
 ## The door
